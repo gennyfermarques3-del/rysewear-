@@ -9,7 +9,8 @@ Sistema de vendas e estoque da RYSE WEAR.
 
 | Pasta | O que é |
 |---|---|
-| `producao/` | Cópia exata do que está no ar (publicado em 23/10/2026). Use para voltar atrás se uma atualização der errado. |
+| `site/` | Versão no ar desde 30/10/2026, com o **condicional**. |
+| `producao/` | Versão anterior (publicada em 23/10/2026), guardada para voltar atrás se precisar. |
 
 ## Atualizar a cópia
 
