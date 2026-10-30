@@ -1,0 +1,46 @@
+name: Backup do site (Vercel)
+
+# Baixa os arquivos publicados na Vercel e salva neste repositório.
+# Rode manualmente em Actions > "Backup do site (Vercel)" > Run workflow.
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/backup-site.yml
+
+permissions:
+  contents: write
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Versão no ar (produção)
+        run: |
+          set -e
+          D=producao
+          rm -rf "$D" && mkdir -p "$D"
+          B=https://ryse-wear.vercel.app
+          for f in index.html apple-touch-icon.png icon-192.png icon-512.png manifest.webmanifest; do
+            curl -fsSL "$B/$f" -o "$D/$f"
+          done
+          # Somas registradas no build.sh da publicação de 23/10 (dpl_6614rS8heCni87Cs9c5N9hEutJAX)
+          cd "$D"
+          sha1sum -c - <<'SUMS' || echo "::warning::O site no ar difere dos arquivos de 23/10"
+          67cdabd1fe0761753c0538c0f887028f221418d0  index.html
+          fbe0891d3b385288044c3090115e03d41902b94b  apple-touch-icon.png
+          5e3ecff9b8eeb663c185da152e2db15a025a0377  icon-192.png
+          d0d3611505cac341da4f46bb2e33513ea68cc014  icon-512.png
+          SUMS
+
+
+      - name: Salvar no repositório
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A producao
+          if git diff --cached --quiet; then echo "Nada mudou."; exit 0; fi
+          git commit -m "Backup do site publicado na Vercel ($(date -u +%Y-%m-%d))"
+          git push
