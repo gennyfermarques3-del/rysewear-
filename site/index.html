@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-title" content="RYSE WEAR">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#DED2C9">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js" integrity="sha384-rwykjmWNwVxboyFmvK9OXN0wj9hnMHA2aAHtits54DuACyCq0M2PrSNxhRb+hvXT" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head><body class="out boot">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -458,7 +458,7 @@ ol.steps li{border-top-color:transparent}
 :root{
   --bg:#E9E2DB; --surface:#F7F3EF; --sunk:#EFE8E1; --ink:#0D0F0F; --muted:#5E534C; --faint:#8E827A; --line:#D3C7BD;
   --accent:#0D0F0F; --accent-ink:#F7F3EF; --accent-soft:#EFE4DA; --brand:#6D3F23; --brand-ink:#FFFFFF;
-  --side:#DED2C9; --side-ink:#3D332C; --r:10px; --sw:236px;
+  --side:#DED2C9; --side-ink:#3D332C; --r:10px; --sw:250px;
   --f-display:"Montserrat","Segoe UI",system-ui,sans-serif; --f-body:"Montserrat","Segoe UI",system-ui,sans-serif; --f-mono:"Montserrat","Segoe UI",system-ui,sans-serif;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
@@ -480,6 +480,9 @@ nav.tabs button{display:flex;align-items:center;gap:12px;width:100%;text-align:l
 nav.tabs button:hover{color:var(--ink);background:color-mix(in srgb,var(--ink) 6%,transparent)}
 nav.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink);font-weight:700;border:0}
 nav.tabs .ic{width:18px;height:18px;flex-shrink:0}
+nav.tabs button .tl{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+nav.tabs .badge{flex-shrink:0}
+nav.tabs [data-tab="importar"] .badge{position:absolute;left:22px;top:4px;min-width:16px;padding:0 4px;font-size:.6rem;line-height:16px;margin:0}
 nav.tabs .badge{margin-left:auto;border-radius:999px;background:var(--brand);color:var(--brand-ink);font:700 .68rem/18px var(--f-body)}
 nav.tabs button[aria-selected="true"] .badge{background:var(--accent-ink);color:var(--accent)}
 nav.tabs .more{display:none}
@@ -658,7 +661,7 @@ table.list th{font:600 .68rem var(--f-body);letter-spacing:.14em}
     <button role="tab" data-tab="estoque" aria-selected="false" type="button"><svg class="ic" viewBox="0 0 18 18" aria-hidden="true"><path d="M2.5 5.2 9 2.5l6.5 2.7v7.6L9 15.5l-6.5-2.7zM2.5 5.2 9 8l6.5-2.8M9 8v7.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></svg><span class="tl">Estoque</span></button>
     <button role="tab" data-tab="relatorios" aria-selected="false" type="button"><svg class="ic" viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 15V9.5M7.2 15V4.5M10.8 15V7.5M14.5 15V2.8" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"></path></svg><span class="tl">Relatórios</span></button>
     <button role="tab" data-tab="produtos" aria-selected="false" type="button"><svg class="ic" viewBox="0 0 18 18" aria-hidden="true"><path d="M6.3 2.5 2.5 5l1.8 3 1.7-.9V15.5h6V7.1l1.7.9 1.8-3-3.8-2.5c-.8 1.6-4.6 1.6-5.4 0z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg><span class="tl">Produtos</span></button>
-    <button role="tab" data-tab="importar" aria-selected="false" type="button"><svg class="ic" viewBox="0 0 18 18" aria-hidden="true"><path d="M9 2.8v8.4M5.4 7.6 9 11.2l3.6-3.6M3.5 15h11" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></svg><span class="tl">Exportar e backup</span></button>
+    <button role="tab" data-tab="importar" aria-selected="false" type="button"><svg class="ic" viewBox="0 0 18 18" aria-hidden="true"><path d="M9 2.8v8.4M5.4 7.6 9 11.2l3.6-3.6M3.5 15h11" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></svg><span class="tl" data-short="Segurança">Backup e segurança</span><span class="badge" id="secBadge" hidden>0</span></button>
     <button type="button" class="more" id="navMore" aria-expanded="false" aria-controls="nav"><svg class="ic" viewBox="0 0 18 18" aria-hidden="true"><path d="M4 9h.01M9 9h.01M14 9h.01" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></path></svg><span class="tl">Mais</span></button>
     <div class="side-card" aria-hidden="true"><img src="hero.jpg" alt="" loading="lazy"><p>VISTA SUA FORÇA.<br><span>ELEVE SEUS RESULTADOS.</span></p></div>
   </nav>
@@ -909,6 +912,23 @@ table.list th{font:600 .68rem var(--f-body);letter-spacing:.14em}
       <p class="muted small">Baixa um arquivo com todos os produtos, vendas e movimentações. Guarde no Google Drive ou no computador de vez em quando.</p>
       <div class="row"><button class="btn" type="button" id="backupBtn">Baixar cópia de segurança (JSON)</button><span class="muted small" id="backupMsg"></span></div>
     </div>
+    <div class="panel stack" id="secPanel">
+      <div class="spread"><h2>Segurança</h2><button class="btn sm" type="button" id="secRefresh">Atualizar</button></div>
+      <div class="tiles" id="secTiles"></div>
+      <div class="stack tight">
+        <div class="spread"><h3>Alertas</h3><span class="muted small">atividades suspeitas detectadas pelo servidor</span></div>
+        <div class="feed" id="secAlerts"></div>
+      </div>
+      <div class="stack tight">
+        <div class="spread"><h3>Suas sessões ativas</h3><button class="btn sm danger" type="button" id="secRevoke">Encerrar todas as sessões</button></div>
+        <p class="muted small">Sessões sem uso por 60 minutos são encerradas automaticamente. Trocar a senha também encerra todas.</p>
+        <div class="feed" id="secSessions"></div>
+      </div>
+      <div class="stack tight">
+        <div class="spread"><h3>Acessos recentes</h3><span class="muted small">entradas, senhas erradas, bloqueios e trocas de senha</span></div>
+        <div class="scroll" id="secLog"></div>
+      </div>
+    </div>
   </section>
 </div>
 <dialog id="pzDlg" class="dlg" aria-labelledby="pzTitle">
@@ -917,7 +937,7 @@ table.list th{font:600 .68rem var(--f-body);letter-spacing:.14em}
     <p class="small muted">Desmarque o que não precisa ver. A escolha fica guardada neste aparelho. Para só encolher uma seção, use o botão − no título dela.</p>
     <div class="stack tight"><span class="eyebrow">Números do topo</span><div class="xl-list" id="pzTiles"></div></div>
     <div class="stack tight"><span class="eyebrow">Seções</span><div class="xl-list" id="pzSecs"></div></div>
-    <div class="spread adj-foot"><div class="row" style="gap:6px"><button class="btn ghost sm" type="button" id="pzAll">Mostrar tudo</button><button class="btn ghost sm" type="button" id="pzLean">Voltar ao painel enxuto</button></div><button class="btn primary" type="button" onclick="this.closest('dialog').close()">Pronto</button></div>
+    <div class="spread adj-foot"><div class="row" style="gap:6px"><button class="btn ghost sm" type="button" id="pzAll">Mostrar tudo</button><button class="btn ghost sm" type="button" id="pzLean">Voltar ao painel enxuto</button></div><button class="btn primary" type="button" data-close-dlg>Pronto</button></div>
   </div>
 </dialog>
 <dialog id="xlDlg" class="dlg" aria-labelledby="xlTitle">
@@ -1002,6 +1022,7 @@ const vLabel = v => `${v.color} · ${v.size}`;
 const byName = (a, b) => a.name.localeCompare(b.name, 'pt-BR');
 
 let db = null, downloads = null, loaded = false, readOnly = false;
+let started = false, starting = false;
 let products = [], recentMovs = [], dashSales = [], dashLoaded = false;
 let periodSales = [], periodMovs = [], prevSales = [], periodLoaded = false;
 let conds = [], condsLoaded = false;
@@ -1069,6 +1090,7 @@ function renderView(){
   else if (view === 'estoque') renderEstoque();
   else if (view === 'relatorios') renderRel();
   else if (view === 'produtos') renderPlist();
+  else if (view === 'importar') loadSecurity();
 }
 
 /* ---------- sales math ---------- */
@@ -1357,6 +1379,7 @@ function loadExcel(){
   if (window.ExcelJS) return Promise.resolve(window.ExcelJS);
   if (!excelLib) excelLib = new Promise((res, rej) => {
     const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js';
+    s.integrity = 'sha384-Pqp51FUN2/qzfxZxBCtF0stpc9ONI6MYZpVqmo8m20SoaQCzf+arZvACkLkirlPz'; s.crossOrigin = 'anonymous'; s.referrerPolicy = 'no-referrer';
     s.onload = () => res(window.ExcelJS); s.onerror = () => { excelLib = null; s.remove(); rej(new Error('load')); };
     document.head.appendChild(s);
   });
@@ -2366,6 +2389,7 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const TABLES = {products:'products', sales:'sales', movements:'movements', config:'settings', condicionais:'consignments'};
 function sbErr(e){
   const m = String((e && (e.message || e.error_description)) || e || '');
+  if (/sessao_invalida/.test(m)) { const r = (m.split(':')[1] || '').trim(); setTimeout(() => expireSession(r)); return {code:'invalid_argument', message:m}; }
   if (e && (e.code === '42501' || /row-level security|permission denied/i.test(m))) return {code:'invalid_argument', message:m};
   return {code:'unavailable', message:m};
 }
@@ -2463,33 +2487,38 @@ const browserDownloads = {save: ({filename, data}) => { const a = document.creat
 /* ---------- login ---------- */
 const sb = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 let lgMode = 'in', recovering = /type=recovery/.test(location.hash), forcedReset = false;
+const AUTH_FN = SUPABASE_URL + '/functions/v1/auth';
+async function authCall(body, token){
+  let r;
+  try { r = await fetch(AUTH_FN, {method:'POST', headers:{'Content-Type':'application/json', apikey:SUPABASE_KEY, ...(token ? {Authorization:'Bearer ' + token} : {})}, body:JSON.stringify(body)}); }
+  catch { throw {message:'Sem conexão com o servidor. Confira a internet e tente de novo.'}; }
+  const data = await r.json().catch(() => ({}));
+  return {status:r.status, data};
+}
+const PASS_RULES = 'Mínimo de 8 caracteres. Senhas comuns ou que já vazaram na internet não são aceitas.';
 const LG = {
   in:{title:'Entrar', sub:'Use o e-mail e a senha da equipe RYSE WEAR.', go:'Entrar', pass:true, email:true},
-  up:{title:'Criar senha', sub:'Primeiro acesso: use o e-mail que tem acesso à loja e escolha uma senha (mínimo de 6 caracteres).', go:'Criar acesso', pass:true, email:true},
+  up:{title:'Primeiro acesso', sub:'Informe o e-mail que tem acesso à loja. Enviamos um link para você criar a sua senha.', go:'Enviar link', pass:false, email:true},
   reset:{title:'Esqueci a senha', sub:'Enviamos um link para o seu e-mail. Abra o link neste aparelho para escolher uma senha nova.', go:'Enviar link', pass:false, email:true},
-  new:{title:'Nova senha', sub:'Escolha a sua nova senha (mínimo de 6 caracteres).', go:'Salvar senha', pass:true, email:false}
+  new:{title:'Nova senha', sub:'Escolha a sua nova senha. ' + PASS_RULES, go:'Salvar senha', pass:true, email:false}
 };
+let pwToken = null;   /* sessão que só pode trocar a senha (link do e-mail ou troca obrigatória) */
 function lgSet(mode, msg){
   lgMode = mode; const m = LG[mode];
   $('#lgTitle').textContent = m.title; $('#lgSub').textContent = m.sub; $('#lgGo').textContent = m.go;
   $('#lgPassWrap').hidden = !m.pass; $('#lgPass').required = m.pass;
   $('#lgEmailWrap').hidden = !m.email; $('#lgEmail').required = m.email;
   $('#lgPass').autocomplete = mode === 'in' ? 'current-password' : 'new-password';
-  $('#lgSwap').textContent = mode === 'in' ? 'Primeiro acesso? Criar senha' : 'Já tenho senha: entrar';
-  $('#lgSwap').hidden = mode === 'new'; $('#lgForgot').hidden = mode !== 'in';
+  $('#lgPass').minLength = mode === 'new' ? 8 : 1; $('#lgPass').value = '';
+  $('#lgSwap').textContent = mode === 'in' ? 'Primeiro acesso? Criar senha' : mode === 'new' ? 'Cancelar e sair' : 'Já tenho senha: entrar';
+  $('#lgSwap').hidden = false; $('#lgForgot').hidden = mode !== 'in';
   $('#lgMsg').innerHTML = msg || '';
 }
-const lgErr = e => {
-  const m = String((e && e.message) || '');
-  if (/invalid login credentials/i.test(m)) return 'E-mail ou senha incorretos.';
-  if (/email not confirmed/i.test(m)) return 'Confirme o seu e-mail: abra o link que enviamos e depois entre aqui.';
-  if (/already registered|already exists/i.test(m)) return 'Este e-mail já tem senha. Use “Já tenho senha: entrar” ou “Esqueci a senha”.';
-  if (/password/i.test(m) && /6|short|weak/i.test(m)) return 'A senha precisa ter pelo menos 6 caracteres.';
-  if (/rate limit|too many/i.test(m)) return 'Muitas tentativas seguidas. Espere alguns minutos e tente de novo.';
-  return 'Não foi possível agora: ' + m;
-};
+const lgNotice = (t, kind = 'err') => `<div class="notice ${kind}"><span>${t}</span></div>`;
+const waitTxt = s => { const m = Math.ceil((s || 60) / 60); return m <= 1 ? '1 minuto' : `${m} minutos`; };
+async function lgOut(msg){ pwToken = null; recovering = forcedReset = false; await sb.auth.signOut({scope:'local'}).catch(() => {}); history.replaceState(null, '', location.pathname); lgSet('in', msg); }
 $('#lgSwap').addEventListener('click', async () => {
-  if (forcedReset) { await sb.auth.signOut().catch(() => {}); location.replace(location.pathname); return; }
+  if (lgMode === 'new') { await lgOut(); return; }
   lgSet(lgMode === 'in' ? 'up' : 'in');
 });
 $('#lgForgot').addEventListener('click', () => lgSet('reset'));
@@ -2498,23 +2527,93 @@ $('#lgForm').addEventListener('submit', async e => {
   const email = $('#lgEmail').value.trim(), password = $('#lgPass').value, btn = $('#lgGo'), msg = $('#lgMsg');
   btn.disabled = true; msg.innerHTML = '';
   try {
-    if (lgMode === 'in') { const {error} = await sb.auth.signInWithPassword({email, password}); if (error) throw error; }
-    else if (lgMode === 'up') {
-      const {data, error} = await sb.auth.signUp({email, password, options:{emailRedirectTo: location.origin}}); if (error) throw error;
-      if (!data.session) lgSet('in', `<div class="notice okn"><span>Enviamos um link de confirmação para <b>${esc(email)}</b>. Abra o link e depois entre aqui com a senha que você criou.</span></div>`);
+    if (lgMode === 'in') {
+      const {status, data} = await authCall({action:'login', email, password});
+      if (status === 429) msg.innerHTML = lgNotice(`Muitas tentativas erradas. Por segurança, o acesso foi bloqueado. Tente de novo em ${waitTxt(data.retry_after)}.`);
+      else if (status === 401) msg.innerHTML = lgNotice('E-mail ou senha incorretos. Depois de 3 tentativas erradas, o acesso fica bloqueado por 5 minutos.');
+      else if (status !== 200) msg.innerHTML = lgNotice(esc(data.message || 'Não foi possível entrar agora. Tente de novo.'));
+      else if (data.must_change) {
+        recovering = forcedReset = true; pwToken = data.session.access_token;
+        await sb.auth.setSession(data.session);
+        lgSet('new', lgNotice('Para continuar, crie uma senha nova só sua.', ''));
+      } else {
+        recovering = false; const {error} = await sb.auth.setSession(data.session); if (error) throw error;
+      }
     }
-    else if (lgMode === 'reset') { const {error} = await sb.auth.resetPasswordForEmail(email, {redirectTo: location.origin}); if (error) throw error; lgSet('in', `<div class="notice okn"><span>Se <b>${esc(email)}</b> tiver acesso, o link chega em instantes. Confira também o spam.</span></div>`); }
+    else if (lgMode === 'up' || lgMode === 'reset') {
+      await authCall({action:'request_reset', email});
+      lgSet('in', lgNotice(`Se <b>${esc(email)}</b> tiver acesso, o link chega em instantes. Confira também o spam.`, 'okn'));
+    }
     else if (lgMode === 'new') {
-      const {data, error} = await sb.auth.updateUser({password}); if (error) throw error;
-      if (forcedReset) { const {error: e2} = await sb.rpc('clear_password_reset'); if (e2) throw e2; forcedReset = false; }
-      recovering = false; history.replaceState(null, '', location.pathname);
-      const {data: s} = await sb.auth.getSession(); if (s.session) startApp(s.session); else lgSet('in');
-      toast('Senha nova salva');
+      const token = pwToken || (await sb.auth.getSession()).data.session?.access_token;
+      const {status, data} = await authCall({action:'set_password', password}, token);
+      if (status === 200) await lgOut(lgNotice('Senha nova salva. Por segurança, todas as sessões foram encerradas: entre com a senha nova.', 'okn'));
+      else if (status === 401 || status === 403) await lgOut(lgNotice(esc(data.message || 'O link expirou. Peça um link novo em “Esqueci a senha”.')));
+      else msg.innerHTML = lgNotice(esc(data.message || 'Não foi possível salvar a senha.'));
     }
-  } catch (err) { msg.innerHTML = `<div class="notice err"><span>${esc(lgErr(err))}</span></div>`; }
+  } catch (err) { msg.innerHTML = lgNotice(esc((err && err.message) || 'Não foi possível agora. Tente de novo.')); }
   btn.disabled = false;
 });
-$('#logout').addEventListener('click', async () => { try { localStorage.removeItem('ge2-cart'); } catch {} if (sb) await sb.auth.signOut().catch(() => {}); location.replace(location.pathname); });
+$('#logout').addEventListener('click', async () => {
+  try { localStorage.removeItem('ge2-cart'); } catch {}
+  if (sb) { await sb.rpc('session_end').catch(() => {}); await sb.auth.signOut({scope:'local'}).catch(() => {}); }
+  location.replace(location.pathname);
+});
+
+/* ---------- sessão: expira por inatividade (a regra vale no servidor; aqui só avisamos e saímos) ---------- */
+let lastTouch = 0, sessTimer = null, expiring = false;
+async function expireSession(reason){
+  if (expiring) return; expiring = true;
+  try { sessionStorage.setItem('ryse-out', reason || 'idle'); } catch {}
+  await sb.auth.signOut({scope:'local'}).catch(() => {});
+  location.replace(location.pathname);
+}
+async function sessionTouch(){
+  if (!started) return; lastTouch = Date.now();
+  const {data, error} = await sb.rpc('session_touch');
+  if (!error && data !== 'active') expireSession(data);
+}
+async function sessionCheck(){
+  if (!started || document.hidden) return;
+  const {data, error} = await sb.rpc('session_status');
+  if (!error && data !== 'active') expireSession(data);
+}
+function sessionWatch(){
+  ['pointerdown', 'keydown', 'touchstart'].forEach(ev => addEventListener(ev, () => { if (Date.now() - lastTouch > 60000) sessionTouch(); }, {passive:true}));
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) sessionCheck(); });
+  sessTimer = setInterval(sessionCheck, 60000);
+}
+
+/* ---------- SEGURANÇA (dados vêm do servidor; só membros com sessão ativa conseguem ler) ---------- */
+const SEC_EV = {login_ok:['Entrou', 'entrada'], login_fail:['Senha errada', 'venda'], login_blocked:['Tentativa bloqueada', 'venda'], logout:['Saiu', 'sync'], password_changed:['Senha alterada', 'ajuste'], password_migrated:['Senha protegida (Argon2id)', 'sync'], reset_requested:['Pediu link de senha', 'sync'], sessions_revoked:['Encerrou todas as sessões', 'ajuste'], session_expired:['Sessão expirou', 'sync']};
+const SEC_AL = {conta_bloqueada:'Conta bloqueada por senhas erradas', ip_bloqueado:'Endereço de internet (IP) bloqueado', varias_contas_mesmo_ip:'Várias contas tentadas do mesmo IP (possível robô)', login_apos_falhas:'Entrada logo depois de várias senhas erradas', muitos_pedidos_de_senha:'Muitos pedidos de link de senha'};
+const uaTxt = ua => { ua = ua || ''; const os = /iPhone|iPad/.test(ua) ? 'iPhone/iPad' : /Android/.test(ua) ? 'Android' : /Mac OS/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : /Linux/.test(ua) ? 'Linux' : 'Aparelho'; const br = /Edg\//.test(ua) ? 'Edge' : /Chrome\//.test(ua) ? 'Chrome' : /Firefox\//.test(ua) ? 'Firefox' : /Safari\//.test(ua) ? 'Safari' : ''; return br ? `${os} · ${br}` : os; };
+const dt = iso => { const d = new Date(iso); return `${pad(d.getDate())}/${pad(d.getMonth()+1)} ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+let secData = null;
+async function loadSecurity(){
+  if (!sb || !started) return;
+  const [ov, ss] = await Promise.all([sb.rpc('security_overview'), sb.rpc('my_sessions')]);
+  if (ov.error) { $('#secTiles').innerHTML = '<p class="muted small">Não foi possível carregar o painel de segurança.</p>'; return; }
+  secData = {ov: ov.data, ss: ss.data || []}; renderSecBadge(); if (view === 'importar') renderSecurity();
+}
+function renderSecBadge(){ const n = secData ? secData.ov.alertas.length : 0, b = $('#secBadge'); b.hidden = !n; b.textContent = n; }
+function renderSecurity(){
+  if (!secData) return; const {ov, ss} = secData;
+  $('#secTiles').innerHTML = `<div class="tile"><span class="eyebrow">Entradas (24 h)</span><b>${ov.logins_24h}</b></div><div class="tile${ov.falhas_24h ? ' warn' : ''}"><span class="eyebrow">Senhas erradas (24 h)</span><b>${ov.falhas_24h}</b></div><div class="tile${ov.bloqueios.length ? ' crit' : ''}"><span class="eyebrow">Bloqueios ativos</span><b>${ov.bloqueios.length}</b></div><div class="tile${ov.alertas.length ? ' crit' : ''}"><span class="eyebrow">Alertas abertos</span><b>${ov.alertas.length}</b></div>`;
+  $('#secAlerts').innerHTML = ov.alertas.length ? ov.alertas.map(a => `<div class="it"><div style="min-width:0"><b>${esc(SEC_AL[a.kind] || a.kind)}</b> <span class="pill ${a.severity === 'alta' ? 'venda' : 'ajuste'}">${a.severity === 'alta' ? 'alta' : 'média'}</span><div class="muted small">${dt(a.at)}${a.email ? ' · ' + esc(a.email) : ''}${a.ip ? ' · IP ' + esc(a.ip) : ''}</div></div><button class="btn ghost sm" type="button" data-alert="${a.id}">Marcar como visto</button></div>`).join('') : '<p class="muted small">Nenhum alerta aberto.</p>';
+  $('#secSessions').innerHTML = ss.length ? ss.map(x => `<div class="it"><div style="min-width:0"><b>${esc(uaTxt(x.ua))}</b>${x.atual ? ' <span class="pill entrada">este aparelho</span>' : ''}<div class="muted small">IP ${esc(x.ip || '—')} · entrou ${dt(x.created_at)} · último uso ${dt(x.last_seen)}</div></div></div>`).join('') : '<p class="muted small">Nenhuma sessão ativa.</p>';
+  const rows = ov.acessos.map(a => { const [t, cls] = SEC_EV[a.kind] || [a.kind, 'sync']; return `<tr><td class="n">${dt(a.at)}</td><td><span class="pill ${cls}">${esc(t)}</span></td><td>${esc(a.email || '—')}</td><td>${esc(a.ip || '—')}</td><td class="muted small">${esc(uaTxt(a.ua))}</td></tr>`; }).join('');
+  $('#secLog').innerHTML = rows ? `<table class="list"><thead><tr><th>Quando</th><th>O que aconteceu</th><th>E-mail</th><th>IP</th><th>Aparelho</th></tr></thead><tbody>${rows}</tbody></table>` : '<p class="muted small">Nenhum acesso registrado ainda.</p>';
+}
+$('#secRefresh').addEventListener('click', loadSecurity);
+$('#secAlerts').addEventListener('click', async e => { const b = e.target.closest('[data-alert]'); if (!b) return; b.disabled = true; await sb.rpc('alert_resolve', {p_id: +b.dataset.alert}); loadSecurity(); });
+$('#secRevoke').addEventListener('click', async e => {
+  const b = e.currentTarget; if (!arm(b, 'revoke', 'Toque de novo: encerra em todos os aparelhos')) return;
+  b.disabled = true; const {error} = await sb.rpc('sessions_revoke_all');
+  if (error) { toast('Não foi possível encerrar as sessões agora.'); b.disabled = false; return; }
+  expireSession('revoked_all');
+});
+document.addEventListener('click', e => { const b = e.target.closest('[data-close-dlg]'); if (b) b.closest('dialog').close(); });
 
 /* ---------- boot ---------- */
 function refreshClients(){
@@ -2524,20 +2623,19 @@ function refreshClients(){
 function onData(){ $('#exBanner').hidden = !products.some(p => p.example); refreshClients(); renderTags(); renderCondBadge(); renderView(); }
 saveCart(); syncPeriodInputs(); renderTags(); renderPfGrid(); go(view);
 
-let started = false, starting = false;
 async function startApp(session){
   if (started || starting) return; starting = true;
-  /* Primeiro login com senha temporária: pede a senha nova antes de abrir o sistema */
-  let must = false;
-  try { const {data} = await sb.rpc('needs_password_reset'); must = data === true; } catch {}
+  /* A sessão precisa ter sido aprovada pelo login do servidor e estar ativa */
+  let st = 'unknown';
+  try { const {data, error} = await sb.rpc('session_status'); if (!error) st = data; else st = 'error'; } catch { st = 'error'; }
   starting = false;
-  if (must) {
-    recovering = forcedReset = true; document.body.classList.remove('boot');
-    lgSet('new', '<div class="notice"><span>Primeiro acesso: troque a senha temporária por uma senha só sua para continuar.</span></div>');
-    $('#lgSwap').hidden = false; $('#lgSwap').textContent = 'Sair';
+  if (st !== 'active' && st !== 'error') {
+    await sb.auth.signOut({scope:'local'}).catch(() => {});
+    document.body.classList.remove('boot');
+    lgSet('in', st === 'idle' ? lgNotice('Sua sessão foi encerrada por inatividade. Entre de novo.', '') : st === 'unknown' ? '' : lgNotice('Sua sessão terminou. Entre de novo.', ''));
     return;
   }
-  started = true;
+  started = true; sessionWatch(); lastTouch = Date.now();
   document.body.classList.remove('out', 'boot');
   $('#whoami').textContent = session.user.email || '';
   $('#hAv').textContent = (session.user.email || '?').charAt(0);
@@ -2545,7 +2643,8 @@ async function startApp(session){
   try { await db.ready; }
   catch (e) {
     const n = $('#connNotice'); n.hidden = false;
-    n.innerHTML = `<span>Não foi possível abrir os dados da loja. Verifique a conexão e recarregue a página.</span><button class="btn sm" type="button" onclick="location.reload()">Recarregar</button>`;
+    n.innerHTML = `<span>Não foi possível abrir os dados da loja. Verifique a conexão e recarregue a página.</span><button class="btn sm" type="button" id="connReload">Recarregar</button>`;
+    $('#connReload').addEventListener('click', () => location.reload());
     if (e && e.code === 'invalid_argument') readOnly = true;
     loaded = dashLoaded = periodLoaded = true; onData(); return;
   }
@@ -2566,6 +2665,7 @@ async function startApp(session){
   db.collection('sales').orderBy('date', 'desc').onSnapshot(s => { dashSales = s.docs.map(d => ({...d.data(), id:d.id})); dashLoaded = true; onData(); }, () => { dashLoaded = true; onData(); });
   db.collection('condicionais').orderBy('date', 'desc').onSnapshot(s => { conds = s.docs.map(d => ({...d.data(), id:d.id})); condsLoaded = true; onData(); }, () => { condsLoaded = true; onData(); });
   subscribePeriod();
+  loadSecurity(); setInterval(() => { if (!document.hidden) loadSecurity(); }, 120000);
 }
 
 (() => {
@@ -2575,9 +2675,10 @@ async function startApp(session){
     $('#lgMsg').innerHTML = '<div class="notice err"><span>Não foi possível carregar o sistema de login. Verifique a internet e recarregue a página.</span></div>';
     return;
   }
-  lgSet(recovering ? 'new' : 'in');
+  let outMsg = ''; try { const r = sessionStorage.getItem('ryse-out'); sessionStorage.removeItem('ryse-out'); if (r) outMsg = r === 'idle' ? lgNotice('Sua sessão foi encerrada por inatividade. Entre de novo.', '') : r === 'revoked_all' ? lgNotice('Todas as sessões foram encerradas. Entre de novo.', 'okn') : lgNotice('Sua sessão terminou. Entre de novo.', ''); } catch {}
+  lgSet(recovering ? 'new' : 'in', recovering ? '' : outMsg);
   sb.auth.onAuthStateChange((ev, session) => {
-    if (ev === 'PASSWORD_RECOVERY') { recovering = true; lgSet('new'); document.body.classList.remove('boot'); return; }
+    if (ev === 'PASSWORD_RECOVERY') { recovering = true; pwToken = session && session.access_token; lgSet('new'); document.body.classList.remove('boot'); return; }
     if (ev === 'SIGNED_OUT') { if (started) location.replace(location.pathname); return; }
     if (session && !recovering) { setTimeout(() => startApp(session)); return; }
     if (ev === 'INITIAL_SESSION') document.body.classList.remove('boot');

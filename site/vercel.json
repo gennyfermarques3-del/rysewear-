@@ -1,0 +1,36 @@
+{
+  "buildCommand": "sh build.sh",
+  "outputDirectory": "public",
+  "installCommand": "",
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/ https://cdn.jsdelivr.net/npm/exceljs@4.4.0/ 'sha256-az9MZQPHwRUjIR5PemVf4LJlReW9RDkoQnIFwrUbYn8=' 'sha256-wVIqf0bdvRhaoz1cRoD3uO1EW2+O2cMfXd80LuAq7yE=' 'sha256-nPavIKeCVcMHPZoBHKuyGjfsdKd9km0fmkIJHzlXCRY='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://yhekjbxrsxvmqiloxxzx.supabase.co; connect-src 'self' https://yhekjbxrsxvmqiloxxzx.supabase.co wss://yhekjbxrsxvmqiloxxzx.supabase.co; manifest-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(self), microphone=(), geolocation=(), payment=(), usb=()"
+        },
+        {
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin"
+        }
+      ]
+    }
+  ]
+}
