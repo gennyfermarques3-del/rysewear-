@@ -1,0 +1,22 @@
+{
+  "name": "rysewear-backoffice",
+  "version": "2026.10.31",
+  "private": true,
+  "description": "Sistema de vendas, estoque e condicionais da RYSE WEAR. HTML, CSS e JavaScript puro, sem etapa de compilação; banco e login na Supabase, hospedagem na Vercel.",
+  "homepage": "https://ryse-wear.vercel.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gennyfermarques3-del/rysewear-"
+  },
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@supabase/supabase-js": "2.49.4",
+    "exceljs": "4.4.0"
+  },
+  "x-carregamento": {
+    "observacao": "Arquivo de referência das dependências. O sistema não usa npm nem build: site/index.html carrega as bibliotecas direto da CDN jsDelivr, nestas mesmas versões fixas.",
+    "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js (ao abrir o sistema)",
+    "exceljs": "https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js (só ao exportar para Excel)",
+    "fontes": "Google Fonts: Montserrat (visual atual); Cormorant Garamond, Figtree, IBM Plex Mono, Roboto Mono e Work Sans (sobras de versões anteriores)"
+  }
+}
