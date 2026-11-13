@@ -1783,6 +1783,7 @@ function renderCond(){
       <div style="min-width:0"><b>${esc(c.client || 'Sem nome')}</b> <span class="muted small">${esc(c.number || '')}</span><div class="muted small">${sub} ${pill}</div></div>
       <span class="amt">${brl.format(c.value ?? 0)}</span></summary>
       <div class="body">
+        <div class="row" style="justify-content:flex-end;margin:0 0 8px"><button class="btn sm" type="button" data-kpdf="${esc(c.id)}">Gerar PDF para a bag</button></div>
         <div class="scroll"><table class="list"><thead><tr><th>Peça</th><th>Cor · Tam.</th><th class="n">Levou</th><th class="n">Ficou</th><th class="n">Preço un.</th></tr></thead><tbody>${rows}</tbody></table></div>
         ${[c.phone, c.note].filter(Boolean).length ? `<div class="muted small">${[c.phone, c.note].filter(Boolean).map(esc).join(' · ')}</div>` : ''}
         ${ab ? `<div class="row" style="align-items:end">
@@ -1798,6 +1799,8 @@ function renderCond(){
 }
 $('#kList').addEventListener('input', e => { const id = e.target.dataset.k; const c = id && conds.find(x => x.id === id); if (c) renderKFoot(c); });
 $('#kList').addEventListener('click', async e => {
+  const pdf = e.target.closest('[data-kpdf]');
+  if (pdf) { const c = conds.find(x => x.id === pdf.dataset.kpdf); if (c) condPdf(c, pdf); return; }
   const all = e.target.closest('[data-kall]');
   if (all) { const c = conds.find(x => x.id === all.dataset.kall); (c.items||[]).forEach((it, i) => { const el = document.getElementById(`kq-${c.id}-${i}`); if (el) el.value = it.qty; }); renderKFoot(c); return; }
   const b = e.target.closest('[data-kgo],[data-kback]'); if (!b) return;
@@ -1825,6 +1828,111 @@ $('#kList').addEventListener('click', async e => {
     toast(!stockOk ? 'Finalizado, mas o estoque não foi atualizado. Corrija pela aba Estoque.' : sale ? `Venda de ${brl.format(sale.total)} registrada${backItems.length ? ' e o resto voltou ao estoque' : ''}` : 'Peças devolvidas ao estoque');
   } catch (err) { toast(errMsg(err)); b.disabled = false; }
 });
+
+/* ---------- PDF DO CONDICIONAL (folha de uma página para ir junto na bag) ---------- */
+const LOJA = {instagram: '@rysewearoficial', whatsapp: ''};
+let pdfLib = null;
+function loadPdf(){
+  if (window.jspdf) return Promise.resolve(window.jspdf);
+  if (!pdfLib) pdfLib = new Promise((res, rej) => {
+    const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js';
+    s.onload = () => res(window.jspdf); s.onerror = () => { pdfLib = null; s.remove(); rej(new Error('load')); };
+    document.head.appendChild(s);
+  });
+  return pdfLib;
+}
+const pdfImgs = {};
+function pdfImg(src){
+  if (!pdfImgs[src]) pdfImgs[src] = fetch(src).then(r => { if (!r.ok) throw new Error(src); return r.blob(); })
+    .then(b => new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(b); }))
+    .catch(() => { delete pdfImgs[src]; return null; });
+  return pdfImgs[src];
+}
+async function condPdf(c, btn){
+  const label = btn.textContent; btn.disabled = true; btn.textContent = 'Gerando…';
+  try {
+    const [{jsPDF}, logo, icons] = await Promise.all([loadPdf(), pdfImg('folha-logo.png'), pdfImg('folha-icones.png')]);
+    const doc = buildCondPdf(jsPDF, c, logo, icons);
+    const name = `Condicional ${c.number || ''} - ${c.client || 'cliente'}`.replace(/[\\/:*?"<>|]+/g, '').replace(/\s+/g, ' ').trim();
+    doc.save(name + '.pdf');
+    toast('PDF gerado. É só imprimir e colocar na bag.');
+  } catch { toast('Não foi possível gerar o PDF. Verifique a internet e tente de novo.'); }
+  finally { btn.disabled = false; btn.textContent = label; }
+}
+function buildCondPdf(jsPDF, c, logo, icons){
+  const doc = new jsPDF({unit: 'mm', format: 'a4'}), W = 210, H = 297, M = 14, CW = W - 2 * M;
+  const INK = [13, 15, 15], MUT = [94, 83, 76], LINE = [211, 199, 189], SOFT = [230, 217, 206], SURF = [247, 243, 239];
+  const money = v => brl.format(v || 0).replace(/\s/g, ' ');
+  const items = (c.items || []).filter(i => (i.qty || 0) > 0), n = Math.max(items.length, 1);
+  const pcs = items.reduce((a, i) => a + (i.qty || 0), 0), total = items.reduce((a, i) => a + (i.price || 0) * (i.qty || 0), 0);
+  const col = (rgb, kind) => doc[kind === 'f' ? 'setFillColor' : kind === 'd' ? 'setDrawColor' : 'setTextColor'](...rgb);
+  const font = (size, bold, rgb = INK) => { doc.setFont('helvetica', bold ? 'bold' : 'normal'); doc.setFontSize(size); col(rgb); };
+  const ctext = (t, yy, cs = 0) => doc.text(t, (W - doc.getTextWidth(t) - cs * (t.length - 1)) / 2, yy, {charSpace: cs});
+  const fit = (t, w) => { t = String(t ?? ''); if (doc.getTextWidth(t) <= w) return t; while (t && doc.getTextWidth(t + '…') > w) t = t.slice(0, -1); return t.trimEnd() + '…'; };
+  // Tamanho da arte e das linhas: começa grande e vai compactando até a lista caber numa folha.
+  const LOGO_R = 349 / 640, ICON_R = 120 / 720, THH = 7, CLOSE = 3 + 9 + 4 + 8 + 12 + 8 + 4;
+  const modes = [{lw: 54, iw: 84, min: 5.2}, {lw: 38, iw: 66, min: 4.4}, {lw: 32, iw: 0, min: 3.8}];
+  const headH = m => 12 + (logo ? m.lw * LOGO_R : 12) + 5 + 10 + 15 + 5;
+  const footTop = m => H - 10 - 3 - (icons && m.iw ? m.iw * ICON_R + 3 : 0);
+  let mode = modes[modes.length - 1], rh = 4.6, single = false;
+  for (const m of modes) { const r = (footTop(m) - CLOSE - headH(m) - THH - 0.2) / n; if (r >= m.min) { mode = m; rh = Math.min(r, 7); single = true; break; } }
+  const fs = Math.max(7, Math.min(9.5, rh * 1.9));
+  // Cabeçalho: arte da loja, título e dados da cliente
+  let y = 12;
+  if (logo) { const lh = mode.lw * LOGO_R; doc.addImage(logo, 'PNG', (W - mode.lw) / 2, y, mode.lw, lh); y += lh + 5; }
+  else { font(22, true); doc.text('RYSE WEAR', W / 2, y + 9, {align: 'center'}); y += 16; }
+  font(12, true); ctext(`CONDICIONAL Nº ${c.number || ''}`.trim(), y + 3, 0.6);
+  font(8.5, false, MUT); doc.text('Lista das peças enviadas para você provar', W / 2, y + 8, {align: 'center'}); y += 10;
+  col(SURF, 'f'); col(LINE, 'd'); doc.setLineWidth(0.3); doc.roundedRect(M, y, CW, 15, 2, 2, 'FD');
+  const info = [['CLIENTE', c.client || '—', 68], ['TELEFONE', c.phone || '—', 38], ['SAÍDA', fmtDate(c.date).split(' ')[0] || '—', 36], ['DEVOLVER ATÉ', c.due ? fmtDate(c.due) : '—', 40]];
+  let x = M + 4;
+  info.forEach(([k, v, w]) => { font(6.5, true, MUT); doc.text(k, x, y + 5, {charSpace: 0.3}); font(10, true); doc.text(fit(v, w - 4), x, y + 11); x += w; });
+  y += 15 + 5;
+  // Tabela das peças
+  const cols = [['#', 10, 'c'], ['PEÇA', 0, 'l'], ['COR', 34, 'l'], ['TAM.', 13, 'c'], ['QTD', 11, 'c'], ['PREÇO', 24, 'r'], ['CONFERIDO', 19, 'c']];
+  cols[1][1] = CW - cols.reduce((a, k) => a + k[1], 0);
+  const cx = []; let acc = M; cols.forEach(k => { cx.push(acc); acc += k[1]; });
+  const cell = (txt, i, yy, size) => { const [, w, al] = cols[i], pad = 2, t = i ? fit(txt, w - 2 * pad) : txt, b = yy + size * 0.3528 * 0.35;
+    doc.text(t, al === 'c' ? cx[i] + w / 2 : al === 'r' ? cx[i] + w - pad : cx[i] + pad, b, {align: al === 'c' ? 'center' : al === 'r' ? 'right' : 'left'}); };
+  const tableHead = () => { col(SOFT, 'f'); doc.rect(M, y, CW, THH, 'F'); font(7, true); cols.forEach((k, i) => cell(k[0], i, y + THH / 2, 7)); y += THH; };
+  const contHead = () => { font(9, true); doc.text(`CONDICIONAL Nº ${c.number || ''} · ${c.client || ''} (continuação)`, M, 16); y = 22; tableHead(); };
+  tableHead();
+  const limit = single ? footTop(mode) - CLOSE : H - 18;
+  items.forEach((it, k) => {
+    if (!single && y + rh > limit) { font(7.5, false, MUT); doc.text('Continua na próxima página', W - M, y + 5, {align: 'right'}); doc.addPage(); contHead(); }
+    if (k % 2) { col(SURF, 'f'); doc.rect(M, y, CW, rh, 'F'); }
+    const mid = y + rh / 2; font(fs, false);
+    cell(String(k + 1), 0, mid, fs); font(fs, true); cell(it.name, 1, mid, fs); font(fs, false);
+    cell(it.color, 2, mid, fs); cell(it.size, 3, mid, fs); cell(String(it.qty || 0), 4, mid, fs); cell(money(it.price), 5, mid, fs);
+    const bx = Math.min(3.2, rh - 1.2); col(MUT, 'd'); doc.setLineWidth(0.25); doc.rect(cx[6] + cols[6][1] / 2 - bx / 2, mid - bx / 2, bx, bx);
+    y += rh;
+  });
+  col(LINE, 'd'); doc.setLineWidth(0.3); doc.line(M, y, W - M, y);
+  // Fechamento: totais, aviso e assinatura (se não couber, vai para uma nova folha)
+  if (y + CLOSE > footTop(mode) + 0.5) { doc.addPage(); y = 16; }
+  y += 3; col(INK, 'f'); doc.roundedRect(M, y, CW, 9, 1.5, 1.5, 'F');
+  font(10, true, [255, 255, 255]); doc.text(`TOTAL: ${pcs} ${pcs === 1 ? 'PEÇA' : 'PEÇAS'}`, M + 4, y + 6, {charSpace: 0.4});
+  doc.text(`VALOR DAS PEÇAS: ${money(total)}`, W - M - 4, y + 6, {align: 'right'}); y += 9 + 4;
+  font(8, false, MUT); doc.text('Confira as peças ao receber. Na devolução, cada peça desta lista será conferida.', M, y + 3); y += 8;
+  y += 12; col(INK, 'd'); doc.setLineWidth(0.3); doc.line(M, y, M + 108, y); doc.line(M + 120, y, W - M, y);
+  font(7.5, false, MUT); doc.text('Assinatura da cliente', M, y + 4); doc.text('Data de recebimento:      /      /', M + 120, y + 4); y += 4;
+  // Sobrou espaço (listas curtas): frase da arte da loja entre a assinatura e o rodapé
+  const gap = footTop(mode) - y;
+  if (doc.getNumberOfPages() === 1 && gap >= 40) {
+    let ty = y + (gap - 26) / 2;
+    font(14, true); ctext('SEU LOOK CHEGOU.', ty + 5, 0.3);
+    font(11.5, true, [138, 125, 112]); ctext('AGORA É HORA DE', ty + 12, 0.3);
+    font(11.5, true, [255, 255, 255]); const tw = doc.getTextWidth('SER A SUA MELHOR VERSÃO.') + 0.3 * 23 + 8;
+    col([138, 125, 112], 'f'); doc.rect((W - tw) / 2, ty + 15, tw, 7.5, 'F'); ctext('SER A SUA MELHOR VERSÃO.', ty + 20.4, 0.3);
+  }
+  // Rodapé com a arte e os contatos da loja
+  const pages = doc.getNumberOfPages();
+  doc.setPage(pages);
+  if (icons && mode.iw) doc.addImage(icons, 'PNG', (W - mode.iw) / 2, footTop(mode), mode.iw, mode.iw * ICON_R);
+  font(8.5, true); doc.text([`Instagram ${LOJA.instagram}`, LOJA.whatsapp && `WhatsApp ${LOJA.whatsapp}`].filter(Boolean).join('     ·     '), W / 2, H - 9, {align: 'center'});
+  if (pages > 1) for (let p = 1; p <= pages; p++) { doc.setPage(p); font(7, false, MUT); doc.text(`Página ${p} de ${pages}`, W - M, H - 5, {align: 'right'}); }
+  return doc;
+}
 
 /* ---------- PERÍODO ---------- */
 function periodRange(){
